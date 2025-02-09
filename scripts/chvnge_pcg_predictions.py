@@ -5,17 +5,21 @@
 
 # Standard libraries
 import os
+import sys
 
 # Numerical and data processing libraries
 import numpy as np
 import pandas as pd
+import pickle
 
 # TensorFlow and Keras
 import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.models import load_model
 
 # Custom libraries
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from libs.paths import data_folder, results_folder, models_folder
 from libs import preprocessing_lib as pplib
 from libs import feature_extraction_lib as ftelib
@@ -237,6 +241,8 @@ reconstructed_labels = ftelib.reconstruct_original_data(
 
 # Save results
 results_file_path = results_folder / "pcg_unet_predictions.pkl"
-chvnge_df.to_pickle(reconstructed_labels)
+
+with open(results_file_path, 'wb') as f:
+    pickle.dump(reconstructed_labels, f)
 
 print(f"Results saved to: {results_file_path}")

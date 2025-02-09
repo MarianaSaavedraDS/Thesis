@@ -58,10 +58,9 @@ predicted sequences, ensuring that state transitions follow a defined order.
 
 
 import numpy as np
-from scipy.signal import firwin, resample_poly
 from scipy import signal
-from preprocessing_lib import downsample, min_max_norm
 import pywt
+from libs.preprocessing_lib import downsample, min_max_norm
 
 
 def homomorphic_envelope(data, fs_inicial, fs_final, epsilon=0.01,
