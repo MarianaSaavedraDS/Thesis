@@ -25,7 +25,7 @@ from libs import unet_model as unet
 
 # # Input files
 
-from libs import config
+from models import config
 
 BATCH_SIZE = config.BATCH_SIZE
 patch_size = config.patch_size
@@ -38,8 +38,6 @@ chvnge_df = pd.read_pickle(data_file_path)
 
 # Create a new DataFrame by dropping the 'ECG Signal' column
 pcg_df = chvnge_df.drop(columns=['ECG Signal'])
-
-print(pcg_df.head())
 
 ## Feature Extraction
 
