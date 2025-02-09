@@ -3,3 +3,8 @@ data/
 
 # Ignore the 'results' folder and its contents
 results/
+
+# Ignore the 'models' folder and its contents
+models/
+
+scripts/venv/

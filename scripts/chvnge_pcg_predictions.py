@@ -5,37 +5,20 @@
 
 # Standard libraries
 import os
-import re
-import pickle
-import logging
 
 # Numerical and data processing libraries
 import numpy as np
 import pandas as pd
-import scipy.io as sio
-import scipy.signal
-
-# Audio processing library
-import librosa
-from scipy.io import wavfile
 
 # TensorFlow and Keras
 import tensorflow as tf
-from tensorflow.keras import Input, Model
-from tensorflow.keras.layers import Conv1D, MaxPooling1D, Dropout, UpSampling1D, concatenate
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.callbacks import ModelCheckpoint
-
-# Machine learning metrics
-from sklearn.metrics import accuracy_score, precision_score
-
-# Visualization libraries
-import matplotlib.pyplot as plt
+from tensorflow.keras.models import load_model
 
 # Custom libraries
-import preprocessing_lib as pplib
-import feature_extraction_lib as ftelib
-import file_process_lib as importlib
+from libs.paths import data_folder, results_folder, models_folder
+from libs import preprocessing_lib as pplib
+from libs import feature_extraction_lib as ftelib
 
 # Utility libraries
 import copy
@@ -43,15 +26,16 @@ import copy
 
 # # Input files
 
-import config
+from libs import config
 
 BATCH_SIZE = config.BATCH_SIZE
 patch_size = config.patch_size
 nch = config.nch
 stride = config.stride
 
-# Load the train and validation datasets
-chvnge_df = pd.read_pickle('./data/chvnge_df.pkl')
+# Load data
+data_file_path = data_folder / "chvnge_df.pkl"
+chvnge_df = pd.read_pickle(data_file_path)
 
 # Create a new DataFrame by dropping the 'ECG Signal' column
 pcg_df = chvnge_df.drop(columns=['ECG Signal'])
@@ -224,8 +208,9 @@ model.compile(optimizer=Adam(learning_rate=1e-4),
               loss='categorical_crossentropy',
               metrics=['CategoricalAccuracy', 'Precision', 'Recall'])
 
-# Load the model weights
-checkpoint_path = './pcg_unet_weights/checkpoint_wv.h5'
+
+# Define checkpoint path
+checkpoint_path = models_folder / "pcg_unet_weights" / "checkpoint_wv.h5"
 
 # Load weights if the file exists
 if os.path.exists(checkpoint_path):
@@ -249,11 +234,9 @@ original_lengths = [len(seq) for seq in feature_data[:, 1]]
 reconstructed_labels = ftelib.reconstruct_original_data(
     pcg_pred, original_lengths, patch_size, stride)
 
-# Define the path where you want to save the probabilities (with a .pkl extension)
-predictions_pickle_path = './results/reconstructed_labels.pkl'
 
-# Save the probabilities using pickle
-with open(predictions_pickle_path, 'wb') as file:
-    pickle.dump(reconstructed_labels, file)
+# Save results
+results_file_path = results_folder / "pcg_unet_predictions.pkl"
+chvnge_df.to_pickle(reconstructed_labels)
 
-print(f"Probabilities saved successfully at {predictions_pickle_path}")
+print(f"Results saved to: {results_file_path}")
