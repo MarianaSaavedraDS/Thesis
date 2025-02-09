@@ -6,7 +6,7 @@ ECG and PCG feature extraction library extension.
 @coding: utf_8
 
 @description: This module extends the feature_extraction_lib with custom 
-functions necessary for ECG and PCG signals, without modifying the original 
+functions necessary for the CHVNGE dataset's signals, without modifying the original 
 library. It includes additional signal processing and feature extraction 
 functions specific to the project.
 

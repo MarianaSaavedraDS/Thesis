@@ -15,7 +15,7 @@ import pickle
 # Custom libraries
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from libs.paths import results_folder
+from libs.paths import results_folder, data_folder
 from libs import feature_extraction_lib as ftelib
 from libs import cti_interval_lib as ctilib
 
@@ -26,6 +26,10 @@ signal = "pcg"
 # Define the labels (x and y) that you want to extract
 label_x = 0  # Replace with your chosen label for x
 label_y = 2  # Replace with your chosen label for y
+
+# Load data
+data_file_path = data_folder / "chvnge_df.pkl"
+chvnge_df = pd.read_pickle(data_file_path)
 
 # Define the path to the pickle file
 results_file_path = results_folder / f"{signal}_unet_predictions.pkl"
@@ -91,16 +95,14 @@ avg_intervals_end = ctilib.compute_avg_intervals(filtered_intervals_end)
 # Compute the average S1-S2 intervals for each subject based on midpoints
 avg_intervals_mid = ctilib.compute_avg_intervals(filtered_intervals_mid)
 
-print(len(all_events), len(intervals_start_times), len(intervals_end_times), len(intervals_mid_times))
-print(len(filtered_intervals_start), len(filtered_intervals_end), len(filtered_intervals_mid))
-
-
 # Create the DataFrame with actual label names
 # Assuming all_events is a list of dictionaries with label event times, and you have the target_labels
 
+chvnge_df = chvnge_df[~chvnge_df['ID'].isin([130, 135])]
+
 # Create the DataFrame with extracted event times
 interval_df = pd.DataFrame({
-    f'Label_{label}': [events.get(str(label), []) for events in all_events]  # Dynamically handle any label
+    f'{label}': [events.get(str(label), []) for events in all_events]  # Dynamically handle any label
     for label in target_labels  # Iterate over each label in target_labels
 })
 
@@ -114,9 +116,14 @@ interval_df['Filtered_intervals_end'] = filtered_intervals_end
 interval_df['Avg_intervals_start'] = avg_intervals_start
 interval_df['Avg_intervals_mid'] = avg_intervals_mid
 interval_df['Avg_intervals_end'] = avg_intervals_end
+interval_df['ID'] = chvnge_df['ID'].astype('Int64')
+
+print(interval_df['ID'])
 
 # Define the file path within the results folder, using variables in the file name
 csv_file_path = results_folder / f"{signal}_{label_x}_{label_y}_intervals.csv"
 
 # Save the DataFrame as a CSV file
 interval_df.to_csv(csv_file_path, index=False)
+
+print(f"CVS File with intervals was saved in: {csv_file_path}")
