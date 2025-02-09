@@ -1,4 +1,45 @@
+"""
+CTI Interval Extraction Library.
+
+@file: cti_interval_lib.py
+
+@coding: utf_8
+
+@description: This module contains functions for extracting and processing 
+intervals from label sequences in cardiovascular signal data. These 
+functions can be used in analyzing and comparing time intervals in ECG and 
+PCG signal processing.
+
+@functions:
+- extract_label_events: Extracts the start and end times of specific labels 
+  (e.g., S1, S2) from a sequence of labeled events. The function returns 
+  a dictionary with the start and end times for each label.
+  
+- compute_intervals_using_start_times: Computes the intervals between the 
+  start times of two specified labels (e.g., S1 and S2) across multiple 
+  signal sequences.
+
+- compute_intervals_using_end_times: Computes the intervals between the 
+  end time of one label and the start time of another label for all signal 
+  sequences.
+
+- compute_intervals_using_midpoints: Computes intervals based on the midpoints 
+  of two labels, offering an alternative way to analyze the event timing.
+
+- filter_outliers: Filters out intervals that are considered too short or too 
+  long based on defined minimum and maximum interval thresholds.
+
+- compute_avg_intervals: Computes the average interval for each signal 
+  after outlier removal.
+
+@version: 0.1
+@createdBy: Mariana Lourenço
+@creationDate: 2025-02-09
+"""
+
 import numpy as np
+
+## Specific funtions for max temporal polling sequences
 
 def extract_label_events(sequence, target_labels, sample_rate=50):
     """
@@ -144,6 +185,8 @@ def compute_intervals_using_midpoints(all_events, label_start, label_end):
         intervals.append(label_intervals)  # Store intervals for this sequence
 
     return intervals
+
+# General fucntions
 
 def filter_outliers(cti_intervals, min_interval=0.15, max_interval=0.6):
     """
