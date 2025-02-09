@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 # # Imports
 
 # Standard libraries
@@ -19,14 +16,9 @@ from tensorflow.keras.optimizers import Adam
 # Custom libraries
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from libs.paths import data_folder, results_folder, models_folder
 from libs import preprocessing_lib as pplib
 from libs import feature_extraction_lib as ftelib
-
-# Utility libraries
-import copy
-
 
 # # Input files
 
@@ -43,6 +35,8 @@ chvnge_df = pd.read_pickle(data_file_path)
 
 # Create a new DataFrame by dropping the 'ECG Signal' column
 pcg_df = chvnge_df.drop(columns=['ECG Signal'])
+
+print(pcg_df.head())
 
 ## Feature Extraction
 
@@ -116,6 +110,8 @@ features_df = features_df.drop(columns=['Features'])
 # Convert the loaded DataFrames to numpy arrays
 feature_data = features_df[['ID', 'Homomorphic', 'CWT_Morl',
                    'CWT_Mexh', 'Hilbert_Env']].to_numpy()
+
+print(features_df.head())
 
 # Create patches and structures for NN training
 patched_features = ftelib.process_dataset_no_labels(feature_data, patch_size, stride)
