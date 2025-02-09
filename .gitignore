@@ -7,5 +7,9 @@ results/
 # Ignore the 'models' folder and its contents
 models/
 
+# Ignore virtual environment folder
+.venv/
 
-scripts/venv/
+# Ignore Python bytecode files
+*.pyc
+
