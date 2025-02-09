@@ -5,7 +5,7 @@ data/
 results/
 
 # Ignore the 'models' folder and its contents
-/models/*
+models/
 
 
 scripts/venv/
