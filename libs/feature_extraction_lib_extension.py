@@ -27,8 +27,9 @@ import libs.feature_extraction_lib as ftelib
 from libs import preprocessing_lib as pplib
 import numpy as np
 import pandas as pd
+from scipy import signal
 
-def process_pcg_signals_from_pkl(df):
+def process_pcg_features(df):
     """
     Process signals from a pickle file containing a DataFrame with processed signals.
 
@@ -86,3 +87,57 @@ def process_pcg_signals_from_pkl(df):
     # Create a new DataFrame with features
     features_df = pd.DataFrame(processed_features)
     return features_df
+
+def process_ecg_features(dataset,B,A,FS):
+
+    # Initialize lists to store data
+    hilbert_list, shannon_list, homomorphic_list, hamming_list = [], [], [], []
+    labels_list, ids_list = [], []
+
+    for i, row in dataset.iterrows():
+        try:
+            # Signal processing
+            ecg_raw = row.get('ECG Signal')
+            patient_id = row.get('ID')
+            # Standardization
+            ecg_zscore = pplib.z_score_standardization(ecg_raw)
+            # Bandpass
+            ecg_bandpass = pplib.butterworth_filter(
+                ecg_zscore, 'bandpass', order=6, fs=FS, fc=[0.5, 100])
+
+            # Notch. Remove 50 Hz
+            ecg_notch = signal.filtfilt(B, A, ecg_bandpass)
+            # Detrend
+            ecg_notch -= np.median(ecg_notch)
+
+            hilbert_env = ftelib.hilbert_envelope(
+                ecg_notch, fs_inicial=FS, fs_final=50)
+            shannon_env = ftelib.shannon_envelopenergy(
+                ecg_notch, fs_inicial=FS, fs_final=50)
+            homomorphic_env = ftelib.homomorphic_envelope(
+                ecg_notch, median_window=21, fs_inicial=FS, fs_final=50)
+            hamming_env = ftelib.hamming_smooth_envelope(
+                ecg_notch, window_size=21, fs_inicial=FS, fs_final=50)
+
+
+
+            ids_list.append(patient_id)
+            hilbert_list.append(hilbert_env)
+            shannon_list.append(shannon_env)
+            homomorphic_list.append(homomorphic_env)
+            hamming_list.append(hamming_env)
+
+
+        except Exception as e:
+            print(f"Error processing patient ID {dataset.ID[i]}: {e}")
+            continue
+
+    # Create DataFrame
+    df = pd.DataFrame({
+        'Patient ID': ids_list,
+        'Hilbert': hilbert_list,
+        'Shannon': shannon_list,
+        'Homomorphic': homomorphic_list,
+        'Hamming': hamming_list,
+    })
+    return df

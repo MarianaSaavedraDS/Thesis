@@ -9,6 +9,7 @@ import os
 import numpy as np
 import pandas as pd
 import pickle
+from scipy import signal
 
 # TensorFlow and Keras
 from tensorflow import keras
@@ -17,7 +18,8 @@ from tensorflow import keras
 
 from libs.paths import data_folder, results_folder, models_folder
 from libs import feature_extraction_lib as ftelib
-from libs.feature_extraction_lib_extension import process_pcg_features
+from libs.feature_extraction_lib_extension import process_ecg_features
+from libs import preprocessing_lib as pplib
 
 from libs import unet_model as unet
 
@@ -35,27 +37,24 @@ data_file_path = data_folder / "chvnge_df.pkl"
 chvnge_df = pd.read_pickle(data_file_path)
 
 # Create a new DataFrame by dropping the 'ECG Signal' column
-pcg_df = chvnge_df.drop(columns=['ECG Signal'])
+ecg_df = chvnge_df.drop(columns=['PCG Signal'])
+
 
 ## Feature Extraction
 
-features_df = process_pcg_features(pcg_df)
+FS = 500  # 500 sps original frequency
 
-features_df['Homomorphic'] = features_df['Features'].apply(lambda x: x[:, 0])
-features_df['CWT_Morl'] = features_df['Features'].apply(lambda x: x[:, 1])
-features_df['CWT_Mexh'] = features_df['Features'].apply(lambda x: x[:, 2])
-features_df['Hilbert_Env'] = features_df['Features'].apply(lambda x: x[:, 3])
-features_df = features_df.drop(columns=['Features'])
+# Notch filter. Remove 50 Hz band
+B, A = signal.iirnotch(50, Q=30, fs=FS)
 
-# Convert the loaded DataFrames to numpy arrays
-feature_data = features_df[['ID', 'Homomorphic', 'CWT_Morl',
-                   'CWT_Mexh', 'Hilbert_Env']].to_numpy()
+features_df = process_ecg_features(ecg_df,B,A,FS)
+
+feature_data = features_df[['Patient ID', 'Hilbert', 'Shannon', 'Homomorphic', 'Hamming']].to_numpy()
 
 print(features_df.head())
 
 # Create patches and structures for NN training
 patched_features = ftelib.process_dataset_no_labels(feature_data, patch_size, stride)
-
 
 # # Upload Model
 
@@ -71,7 +70,7 @@ model.compile(optimizer=keras.optimizers.Adam(learning_rate=1e-4),
 
 
 # Define checkpoint path
-checkpoint_path = models_folder / "pcg_unet_weights" / "checkpoint_wv.h5"
+checkpoint_path = models_folder / "ecg_unet_weights" / "checkpoint.h5"
 
 # Load weights if the file exists
 if os.path.exists(checkpoint_path):
@@ -85,17 +84,17 @@ else:
 
 # # Predictions
 # Inference pipeline
-pcg_pred = model.predict(patched_features)
+ecg_pred = model.predict(patched_features)
 
 # Reconstruct from patches
 
 # Get original lengths from validation data
 original_lengths = [len(seq) for seq in feature_data[:, 1]]
 reconstructed_labels = ftelib.reconstruct_original_data(
-    pcg_pred, original_lengths, patch_size, stride)
+    ecg_pred, original_lengths, patch_size, stride)
 
 # Save results
-results_file_path = results_folder / "pcg_unet_predictions.pkl"
+results_file_path = results_folder / "ecg_unet_predictions.pkl"
 
 with open(results_file_path, 'wb') as f:
     pickle.dump(reconstructed_labels, f)

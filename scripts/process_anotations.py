@@ -2,34 +2,28 @@
 
 # # Imports
 
-# Standard libraries
-import os
-import sys
-
 # Numerical and data processing libraries
 import numpy as np
 import pandas as pd
-import pickle
 
 # Custom libraries
 
 from libs.paths import data_folder, results_folder
 from libs.label_mappings import get_label_meaning
 
-from libs import unet_model as unet
-
 # # Input files
 
-signal = 'pcg'
+signal_x = 'pcg'
+signal_y = 'pcg'
 label_x = 0  # Replace with your chosen label for x
 label_y = 2  # Replace with your chosen label for y
 
-label_string = get_label_meaning(signal, label_x, label_y)
+label_string = get_label_meaning(signal_x,signal_y, label_x, label_y)
 
 print(label_string)  # Output: 'S1S2' for PCG, 'baseline segmento QRS' for ECG
 
 # Load Estimates
-data_file_path = results_folder / f"{signal}_{label_string}_estimates.csv"
+data_file_path = results_folder / f"{label_string}_estimates.csv"
 est_intervals_df = pd.read_csv(data_file_path)  # Use read_csv instead of read_pickle for CSV files
 
 print(est_intervals_df.columns)

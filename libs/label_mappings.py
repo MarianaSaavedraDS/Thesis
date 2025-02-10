@@ -42,17 +42,16 @@ LABEL_MAP = {
     }
 }
 
-def get_label_meaning(signal, label_x, label_y):
+def get_label_meaning(signal_x, signal_y, label_x, label_y):
     """
-    Given a signal type ('pcg' or 'ecg') and two label indices,
-    return the concatenated meaning string (e.g., 'S1S2').
+    Given two signal types ('pcg' or 'ecg') and their corresponding label indices,
+    return the concatenated meaning string (e.g., 'S1S2' if signal_x='pcg' and signal_y='pcg').
     """
-    if signal not in LABEL_MAP:
-        raise ValueError(f"Invalid signal type: {signal}. Choose 'pcg' or 'ecg'.")
-    
-    mapping = LABEL_MAP[signal]
-    
-    meaning_x = mapping.get(label_x, f"Unknown({label_x})")
-    meaning_y = mapping.get(label_y, f"Unknown({label_y})")
-    
+    if signal_x not in LABEL_MAP or signal_y not in LABEL_MAP:
+        raise ValueError(f"Invalid signal types: {signal_x}, {signal_y}. Choose from 'pcg' or 'ecg'.")
+
+    # Get label meanings for both signals
+    meaning_x = LABEL_MAP[signal_x].get(label_x, f"Unknown({label_x})")
+    meaning_y = LABEL_MAP[signal_y].get(label_y, f"Unknown({label_y})")
+
     return f"{meaning_x}{meaning_y}"
