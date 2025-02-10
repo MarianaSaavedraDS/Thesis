@@ -17,6 +17,7 @@ import pickle
 from libs.paths import results_folder, data_folder
 from libs import feature_extraction_lib as ftelib
 from libs import cti_interval_lib as ctilib
+from libs.label_mappings import get_label_meaning
 
 # # Input files
 
@@ -25,6 +26,10 @@ signal = "pcg"
 # Define the labels (x and y) that you want to extract
 label_x = 0  # Replace with your chosen label for x
 label_y = 2  # Replace with your chosen label for y
+
+label_string = get_label_meaning(signal, label_x, label_y)
+
+print(label_string)  # Output: 'S1S2' for PCG, 'baseline segmento QRS' for ECG
 
 # Load data
 data_file_path = data_folder / "chvnge_df.pkl"
@@ -116,11 +121,10 @@ interval_df['Avg_intervals_start'] = avg_intervals_start
 interval_df['Avg_intervals_mid'] = avg_intervals_mid
 interval_df['Avg_intervals_end'] = avg_intervals_end
 interval_df['ID'] = chvnge_df['ID'].astype('Int64')
-
-print(interval_df['ID'])
+interval_df['Auscultation Point'] = chvnge_df['Auscultation Point'].astype(str)
 
 # Define the file path within the results folder, using variables in the file name
-csv_file_path = results_folder / f"{signal}_{label_x}_{label_y}_intervals.csv"
+csv_file_path = results_folder / f"{signal}_{label_string}_estimates.csv"
 
 # Save the DataFrame as a CSV file
 interval_df.to_csv(csv_file_path, index=False)

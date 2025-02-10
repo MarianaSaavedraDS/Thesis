@@ -11,14 +11,9 @@ import numpy as np
 import pandas as pd
 import pickle
 
-# TensorFlow and Keras
-from tensorflow import keras
-
 # Custom libraries
 
-from libs.paths import data_folder, results_folder, models_folder
-from libs import feature_extraction_lib as ftelib
-from libs.feature_extraction_lib_extension import process_pcg_signals_from_pkl
+from libs.paths import data_folder, results_folder
 from libs.label_mappings import get_label_meaning
 
 from libs import unet_model as unet
@@ -34,8 +29,10 @@ label_string = get_label_meaning(signal, label_x, label_y)
 print(label_string)  # Output: 'S1S2' for PCG, 'baseline segmento QRS' for ECG
 
 # Load Estimates
-data_file_path = results_folder / f"{signal}_{label_x}_{label_y}_intervals.csv"
+data_file_path = results_folder / f"{signal}_{label_string}_estimates.csv"
 est_intervals_df = pd.read_csv(data_file_path)  # Use read_csv instead of read_pickle for CSV files
+
+print(est_intervals_df.columns)
 
 # # Load Annotations
 
@@ -64,7 +61,7 @@ else:
 # Create the new filtered DataFrame
 base_annotations_df = df_annotations[selected_columns]
 
-merged_df = est_intervals_df.merge(base_annotations_df, on='ID', how='inner')
+merged_df = est_intervals_df.merge(base_annotations_df, on=['ID', 'Auscultation Point'], how='inner')
 
 print(merged_df.columns)
 
@@ -73,5 +70,6 @@ csv_file_path = results_folder / f"{label_string}_estimates_and_annotations.csv"
 
 # Save the DataFrame as a CSV file
 merged_df.to_csv(csv_file_path, index=False)
+print(merged_df.head())
 
 print(f"CVS file with estimates and annotations of the interval {label_string} was saved in: {csv_file_path}")
