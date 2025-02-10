@@ -16,7 +16,6 @@ from tensorflow import keras
 
 # Custom libraries
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from libs.paths import data_folder, results_folder, models_folder
 from libs import feature_extraction_lib as ftelib
 from libs.feature_extraction_lib_extension import process_pcg_signals_from_pkl

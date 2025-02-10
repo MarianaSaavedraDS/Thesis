@@ -14,7 +14,6 @@ import pickle
 
 # Custom libraries
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from libs.paths import results_folder, data_folder
 from libs import feature_extraction_lib as ftelib
 from libs import cti_interval_lib as ctilib
