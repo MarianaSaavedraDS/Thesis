@@ -33,12 +33,11 @@ nch = config.nch
 stride = config.stride
 
 # Load data
-data_file_path = data_folder / "chvnge_df.pkl"
+data_file_path = data_folder / "std_chvnge_df.pkl"
 chvnge_df = pd.read_pickle(data_file_path)
 
 # Create a new DataFrame by dropping the 'ECG Signal' column
 ecg_df = chvnge_df.drop(columns=['PCG Signal'])
-
 
 ## Feature Extraction
 
@@ -48,6 +47,8 @@ FS = 500  # 500 sps original frequency
 B, A = signal.iirnotch(50, Q=30, fs=FS)
 
 features_df = process_ecg_features(ecg_df,B,A,FS)
+
+print(type(features_df['Shannon'].iloc[0]))
 
 feature_data = features_df[['Patient ID', 'Hilbert', 'Shannon', 'Homomorphic', 'Hamming']].to_numpy()
 
@@ -98,5 +99,13 @@ results_file_path = results_folder / "ecg_unet_predictions.pkl"
 
 with open(results_file_path, 'wb') as f:
     pickle.dump(reconstructed_labels, f)
+
+print(f"Results saved to: {results_file_path}")
+
+# Save results
+results_file_path = results_folder / "ecg_features.pkl"
+
+with open(results_file_path, 'wb') as f:
+    pickle.dump(features_df, f)
 
 print(f"Results saved to: {results_file_path}")

@@ -3,8 +3,8 @@
 # # Imports
 
 # Numerical and data processing libraries
-import numpy as np
 import pandas as pd
+import pickle
 
 # Custom libraries
 
@@ -13,18 +13,18 @@ from libs.label_mappings import get_label_meaning
 
 # # Input files
 
-signal_x = 'pcg'
-signal_y = 'pcg'
-label_x = 0  # Replace with your chosen label for x
+signal_x = 'ECG'
+signal_y = 'PCG'
+label_x = 2  # Replace with your chosen label for x
 label_y = 2  # Replace with your chosen label for y
 
-label_string = get_label_meaning(signal_x,signal_y, label_x, label_y)
+label_string, name_x, name_y = get_label_meaning(signal_x,signal_y, label_x, label_y)
 
 print(label_string)  # Output: 'S1S2' for PCG, 'baseline segmento QRS' for ECG
 
 # Load Estimates
-data_file_path = results_folder / f"{label_string}_estimates.csv"
-est_intervals_df = pd.read_csv(data_file_path)  # Use read_csv instead of read_pickle for CSV files
+estimates_file_path = results_folder / f"{label_string}_estimates.csv"
+est_intervals_df = pd.read_pickle(estimates_file_path)  # Use read_csv instead of read_pickle for CSV files
 
 print(est_intervals_df.columns)
 
@@ -59,11 +59,9 @@ merged_df = est_intervals_df.merge(base_annotations_df, on=['ID', 'Auscultation 
 
 print(merged_df.columns)
 
-# Define the file path within the results folder, using variables in the file name
-csv_file_path = results_folder / f"{label_string}_estimates_and_annotations.csv"
+# Save the combined dictionary
+estimates_file_path = results_folder / f"{label_string}_estimates_and_annotations.csv"
+with open(estimates_file_path, 'wb') as f:
+    pickle.dump(merged_df, f)
 
-# Save the DataFrame as a CSV file
-merged_df.to_csv(csv_file_path, index=False)
-print(merged_df.head())
-
-print(f"CVS file with estimates and annotations of the interval {label_string} was saved in: {csv_file_path}")
+print(f"Results saved to: {estimates_file_path}")

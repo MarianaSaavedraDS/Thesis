@@ -31,11 +31,13 @@ nch = config.nch
 stride = config.stride
 
 # Load data
-data_file_path = data_folder / "chvnge_df.pkl"
+data_file_path = data_folder / "std_chvnge_df.pkl"
 chvnge_df = pd.read_pickle(data_file_path)
 
 # Create a new DataFrame by dropping the 'ECG Signal' column
 pcg_df = chvnge_df.drop(columns=['ECG Signal'])
+
+print(pcg_df.head())
 
 ## Feature Extraction
 
@@ -55,7 +57,6 @@ print(features_df.head())
 
 # Create patches and structures for NN training
 patched_features = ftelib.process_dataset_no_labels(feature_data, patch_size, stride)
-
 
 # # Upload Model
 

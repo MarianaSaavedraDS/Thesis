@@ -28,13 +28,13 @@ meaning for interval-based analysis.
 # Mapping of model labels to their meanings
 
 LABEL_MAP = {
-    'pcg': {
+    'PCG': {
         0: 'S1',
-        1: 'diastole',
+        1: 'diastol',
         2: 'S2',
-        3: 'sístole'
+        3: 'sistol'
     },
-    'ecg': {
+    'ECG': {
         0: 'baseline',
         1: 'P',
         2: 'Q',
@@ -54,4 +54,4 @@ def get_label_meaning(signal_x, signal_y, label_x, label_y):
     meaning_x = LABEL_MAP[signal_x].get(label_x, f"Unknown({label_x})")
     meaning_y = LABEL_MAP[signal_y].get(label_y, f"Unknown({label_y})")
 
-    return f"{meaning_x}{meaning_y}"
+    return f"{meaning_x}{meaning_y}", f"{meaning_x}",f"{meaning_y}"

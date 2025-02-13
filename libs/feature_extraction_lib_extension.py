@@ -45,6 +45,9 @@ def process_pcg_features(df):
     for _, row in df.iterrows():
         try:
             data = row['PCG Signal']
+            
+            # Frequency downsampling
+            data = pplib.downsample(data, 3000, 1000)
 
             # Schmidt despiking
             despiked_signal = pplib.schmidt_spike_removal(data, 1000)
@@ -99,11 +102,10 @@ def process_ecg_features(dataset,B,A,FS):
             # Signal processing
             ecg_raw = row.get('ECG Signal')
             patient_id = row.get('ID')
-            # Standardization
-            ecg_zscore = pplib.z_score_standardization(ecg_raw)
+
             # Bandpass
             ecg_bandpass = pplib.butterworth_filter(
-                ecg_zscore, 'bandpass', order=6, fs=FS, fc=[0.5, 100])
+                ecg_raw, 'bandpass', order=6, fs=FS, fc=[0.5, 100])
 
             # Notch. Remove 50 Hz
             ecg_notch = signal.filtfilt(B, A, ecg_bandpass)
