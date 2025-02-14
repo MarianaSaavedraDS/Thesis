@@ -13,9 +13,9 @@ from libs.label_mappings import get_label_meaning
 
 # # Input files
 
-signal_x = 'ECG'
+signal_x = 'PCG'
 signal_y = 'PCG'
-label_x = 2  # Replace with your chosen label for x
+label_x = 0  # Replace with your chosen label for x
 label_y = 2  # Replace with your chosen label for y
 
 label_string, name_x, name_y = get_label_meaning(signal_x,signal_y, label_x, label_y)
